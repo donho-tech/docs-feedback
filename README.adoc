@@ -1,0 +1,10 @@
+= Docs Feedback
+
+== How to start
+
+Start database
+[source,bash]
+----
+docker run --name postgres -e POSTGRES_PASSWORD=test -p 5432:5432 postgres
+----
+
