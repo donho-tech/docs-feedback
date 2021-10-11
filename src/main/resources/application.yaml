@@ -1,0 +1,12 @@
+
+# Database credentials
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/
+    username: postgres
+    password: test
+
+# Hibernate logging
+logging.level.org.hibernate:
+  SQL: DEBUG
+  type.descriptor.sql.BasicBinder: TRACE
