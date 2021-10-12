@@ -31,13 +31,13 @@ class RatingController @Autowired constructor(
 ) {
 
     @GetMapping("/{id}")
-    fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): Rating {
-        return ratingRepository.findById(id).get()
+    fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): RatingDto {
+        return RatingDto.create(ratingRepository.findById(id).get())
     }
 
     @GetMapping
-    fun getAll(@PathVariable docId: Int): List<Rating> {
-        return ratingRepository.findByDocumentationId(docId)
+    fun getAll(@PathVariable docId: Int): List<RatingDto> {
+        return ratingRepository.findByDocumentationId(docId).map { RatingDto.create(it) }
     }
 
     @PostMapping
