@@ -35,4 +35,7 @@ class Rating(
 )
 
 @Repository
-interface RatingRepository : CrudRepository<Rating, Int>
+interface RatingRepository : CrudRepository<Rating, Int> {
+
+    fun findByDocumentationId(docId: Int): List<Rating>
+}

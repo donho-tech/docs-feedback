@@ -35,6 +35,11 @@ class RatingController @Autowired constructor(
         return ratingRepository.findById(id).get()
     }
 
+    @GetMapping
+    fun getAll(@PathVariable docId: Int): List<Rating> {
+        return ratingRepository.findByDocumentationId(docId)
+    }
+
     @PostMapping
     fun create(@PathVariable docId: Int, @RequestBody dto: RatingDto): String {
         val doc = documentationRepository.findById(docId).get()
