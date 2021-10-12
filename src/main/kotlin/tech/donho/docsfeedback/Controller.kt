@@ -24,20 +24,20 @@ class UserController @Autowired constructor(
 }
 
 @RestController
-@RequestMapping("ratings")
+@RequestMapping("doc/{docId}/ratings")
 class RatingController @Autowired constructor(
     val ratingRepository: RatingRepository,
     val documentationRepository: DocumentationRepository,
 ) {
 
     @GetMapping("/{id}")
-    fun getCurrent(@PathVariable id: Int): Rating {
+    fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): Rating {
         return ratingRepository.findById(id).get()
     }
 
     @PostMapping
-    fun create(@RequestBody dto: RatingDto): String {
-        val doc = documentationRepository.findById(dto.documentation).get()
+    fun create(@PathVariable docId: Int, @RequestBody dto: RatingDto): String {
+        val doc = documentationRepository.findById(docId).get()
         val rating = Rating(
             null,
             dto.helpful,

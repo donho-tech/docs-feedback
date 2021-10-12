@@ -5,5 +5,4 @@ class RatingDto(
     val comment: String,
     val referenceId: String,
     val link: String?,
-    val documentation: Int,
 )
