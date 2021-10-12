@@ -1,10 +1,7 @@
 package tech.donho.docsfeedback
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -14,7 +11,7 @@ class UserController @Autowired constructor(
 ) {
 
     @GetMapping("/{id}")
-    fun getCurrent(@PathVariable id: Long): User {
+    fun getCurrent(@PathVariable id: Int): User {
         return repository.findById(id).get()
     }
 
@@ -34,14 +31,21 @@ class RatingController @Autowired constructor(
 ) {
 
     @GetMapping("/{id}")
-    fun getCurrent(@PathVariable id: Long): Rating {
+    fun getCurrent(@PathVariable id: Int): Rating {
         return ratingRepository.findById(id).get()
     }
 
-    @GetMapping("create")
-    fun create(): String {
-        val doc = documentationRepository.findById(1).get()
-        val rating = Rating(null, true, "Das war sehr hilfreich!", "ErsterArtikel", "www.docs.de/ersterartikel", doc)
+    @PostMapping
+    fun create(@RequestBody dto: RatingDto): String {
+        val doc = documentationRepository.findById(dto.documentation).get()
+        val rating = Rating(
+            null,
+            dto.helpful,
+            dto.comment,
+            dto.referenceId,
+            dto.link,
+            doc
+        )
         ratingRepository.save(rating)
         return "created"
     }

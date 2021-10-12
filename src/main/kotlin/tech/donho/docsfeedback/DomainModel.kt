@@ -8,25 +8,25 @@ import javax.persistence.*
 @Entity
 @Table(name = "users")
 class User(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
     val name: String,
 )
 
 @Repository
-interface UserRepository : CrudRepository<User, Long>
+interface UserRepository : CrudRepository<User, Int>
 
 @Entity
 class Documentation(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
     val name: String,
 )
 
 @Repository
-interface DocumentationRepository : CrudRepository<Documentation, Long>
+interface DocumentationRepository : CrudRepository<Documentation, Int>
 
 @Entity
 class Rating(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
     val helpful: Boolean,
     val comment: String,
     val referenceId: String,
@@ -35,4 +35,4 @@ class Rating(
 )
 
 @Repository
-interface RatingRepository : CrudRepository<Rating, Long>
+interface RatingRepository : CrudRepository<Rating, Int>
