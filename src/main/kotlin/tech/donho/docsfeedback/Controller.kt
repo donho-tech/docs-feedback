@@ -1,6 +1,7 @@
 package tech.donho.docsfeedback
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 
 
@@ -40,7 +41,8 @@ class RatingController @Autowired constructor(
         return ratingRepository.findByDocumentationId(docId).map { RatingDto.create(it) }
     }
 
-    @PostMapping
+    @CrossOrigin
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@PathVariable docId: Int, @RequestBody dto: RatingDto): String {
         val doc = documentationRepository.findById(docId).get()
         val rating = Rating(
