@@ -36,6 +36,7 @@ class RatingController @Autowired constructor(
         return RatingDto.create(ratingRepository.findById(id).get())
     }
 
+    @CrossOrigin
     @GetMapping
     fun getAll(@PathVariable docId: Int): List<RatingDto> {
         return ratingRepository.findByDocumentationId(docId).map { RatingDto.create(it) }
