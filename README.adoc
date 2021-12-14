@@ -5,6 +5,8 @@
 Start database
 [source,bash]
 ----
-docker run --name postgres -e POSTGRES_PASSWORD=test -p 5432:5432 postgres
+docker run --name docsfeedback_postgres -e POSTGRES_PASSWORD=test -p 5432:5432 postgres:14
+
+createdb docsfeedback -h localhost -p 5432 -U postgres
 ----
 

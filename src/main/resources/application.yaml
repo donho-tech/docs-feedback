@@ -2,7 +2,7 @@
 # Database credentials
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/
+    url: jdbc:postgresql://localhost:5432/docsfeedback
     username: postgres
     password: test
 
