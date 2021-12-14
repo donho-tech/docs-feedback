@@ -12,11 +12,12 @@ create table documentation
 
 create table rating
 (
-    id          integer primary key generated always as identity,
-    helpful     boolean not null,
-    comment     text,
+    id           integer primary key generated always as identity,
+--     date         timestamp with time zone,
+    helpful      boolean not null,
+    comment      text,
     reference_id varchar(300),
-    link        varchar(300),
-    docs_id     integer,
+    link         varchar(300),
+    docs_id      integer,
     constraint fk_documentation foreign key (docs_id) references documentation (id)
 );

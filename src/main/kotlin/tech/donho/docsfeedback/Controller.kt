@@ -1,8 +1,10 @@
 package tech.donho.docsfeedback
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 
 @RestController
@@ -30,6 +32,7 @@ class RatingController @Autowired constructor(
     val ratingRepository: RatingRepository,
     val documentationRepository: DocumentationRepository,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
     @GetMapping("/{id}")
     fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): RatingDto {
@@ -39,6 +42,13 @@ class RatingController @Autowired constructor(
     @CrossOrigin
     @GetMapping
     fun getAll(@PathVariable docId: Int): List<RatingDto> {
+        return ratingRepository.findByDocumentationId(docId).map { RatingDto.create(it) }
+    }
+
+    @CrossOrigin
+    @GetMapping("/search")
+    fun search(@PathVariable docId: Int, request: HttpServletRequest): List<RatingDto> {
+        log.info(request.queryString);
         return ratingRepository.findByDocumentationId(docId).map { RatingDto.create(it) }
     }
 
