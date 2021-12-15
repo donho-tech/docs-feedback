@@ -2,6 +2,7 @@ package tech.donho.docsfeedback
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import java.time.ZonedDateTime
 import javax.persistence.*
 
 
@@ -25,17 +26,26 @@ class Documentation(
 interface DocumentationRepository : CrudRepository<Documentation, Int>
 
 @Entity
-class Rating(
+class Document(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
-    val helpful: Boolean,
-    val comment: String,
     val referenceId: String,
     val link: String?,
-    @ManyToOne @JoinColumn(name = "docs_id") val documentation: Documentation,
+    @ManyToOne @JoinColumn(name = "documentation_id") val documentation: Documentation,
 )
 
 @Repository
-interface RatingRepository : CrudRepository<Rating, Int> {
-
-    fun findByDocumentationId(docId: Int): List<Rating>
+interface DocumentRepository : CrudRepository<Document, Int> {
+    fun findByReferenceId(referenceId: String): Document
 }
+
+@Entity
+class Rating(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
+//    val datetime: ZonedDateTime,
+    val helpful: Boolean,
+    val comment: String,
+    @ManyToOne @JoinColumn(name = "document_id") val document: Document,
+)
+
+@Repository
+interface RatingRepository : CrudRepository<Rating, Int>
