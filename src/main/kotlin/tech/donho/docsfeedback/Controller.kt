@@ -3,8 +3,11 @@ package tech.donho.docsfeedback
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 import javax.servlet.http.HttpServletRequest
+import javax.transaction.Transactional
 
 
 @RestController
@@ -35,10 +38,38 @@ class RatingController @Autowired constructor(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-//    @GetMapping()
-//    fun getAllDocs(): RatingDto {
-//        return documentationRepository.findAll();
-//    }
+    @GetMapping("/{docId}")
+    fun getDocumentation(@PathVariable docId: Int): ResponseEntity<DocumentationDto>? {
+        return documentationRepository.findById(docId)
+                .map { ResponseEntity.ok(DocumentationDto.create(it)) }
+                .orElseGet { ResponseEntity.notFound().build() }
+    }
+
+    @PostMapping()
+    fun createDocumentation(@RequestBody dto: DocumentationDto, request: HttpServletRequest): ResponseEntity<Any> {
+        val documentation = Documentation(null, dto.name, emptyList())
+        val saved = documentationRepository.save(documentation)
+
+        return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
+    }
+
+    @PatchMapping("/{docId}")
+    @Transactional
+    fun updateDocumentation(@PathVariable docId: Int, @RequestBody dto: DocumentationDto): ResponseEntity<Any> {
+        val documentation = documentationRepository.findById(docId)
+        if (!documentation.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        documentation.get().name = dto.name
+        return ResponseEntity.ok().build()
+    }
+
+    @DeleteMapping("/{docId}")
+    fun createDocumentation(@PathVariable docId: Int): ResponseEntity<Any> {
+        documentationRepository.deleteById(docId)
+        return ResponseEntity.ok().build()
+    }
 
     @GetMapping("/{docId}/ratings/{id}")
     fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): RatingOutputDto {

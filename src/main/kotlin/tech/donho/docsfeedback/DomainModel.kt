@@ -19,7 +19,9 @@ interface UserRepository : CrudRepository<User, Int>
 @Entity
 class Documentation(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
-    val name: String,
+    var name: String,
+    @OneToMany(mappedBy = "documentation")
+    val documents: List<Document>,
 )
 
 @Repository
