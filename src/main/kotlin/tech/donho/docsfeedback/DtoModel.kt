@@ -31,17 +31,22 @@ class DocumentExcerptDto(
 
 class RatingInputDto(
         val helpful: Boolean,
-        val comment: String,
+        val comment: String?,
         val referenceId: String,
         val link: String?,
 )
+class RatingUpdateInputDto(
+        val helpful: Boolean?,
+        val comment: String?,
+)
 
 class RatingOutputDto(
+        val id: Int,
         val helpful: Boolean,
-        val comment: String,
+        val comment: String?,
 ) {
     companion object Factory {
-        fun create(rating: Rating): RatingOutputDto = RatingOutputDto(rating.helpful, rating.comment)
+        fun create(rating: Rating): RatingOutputDto = RatingOutputDto(rating.id!!, rating.helpful, rating.comment)
     }
 }
 

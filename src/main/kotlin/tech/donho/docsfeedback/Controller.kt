@@ -5,9 +5,9 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.transaction.Transactional
-
 
 @RestController
 @RequestMapping("user")
@@ -72,31 +72,6 @@ class DocumentationController @Autowired constructor(
         documentationRepository.deleteById(docId)
         return ResponseEntity.ok().build()
     }
-
-    @GetMapping("/{docId}/ratings/{id}")
-    fun getCurrent(@PathVariable docId: Int, @PathVariable id: Int): RatingOutputDto {
-        return RatingOutputDto.create(ratingRepository.findById(id).get())
-    }
-
-    @CrossOrigin
-    @GetMapping("/{docId}/ratings")
-    fun getAll(@PathVariable docId: Int): List<RatingOutputDto> {
-        return ratingRepository.findAll().map { RatingOutputDto.create(it) }
-    }
-
-    @CrossOrigin
-    @PostMapping("/{docId}/ratings", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@PathVariable docId: Int, @RequestBody dto: RatingInputDto): String {
-        val document = documentRepository.findByReferenceId(dto.referenceId)
-        val rating = Rating(
-                null,
-                dto.helpful,
-                dto.comment,
-                document,
-        )
-        ratingRepository.save(rating)
-        return "created"
-    }
 }
 
 @RestController
@@ -142,6 +117,76 @@ class DocumentController @Autowired constructor(
     @DeleteMapping("/{documentId}")
     fun deleteDocument(@PathVariable documentId: Int): ResponseEntity<Any> {
         documentRepository.deleteById(documentId)
+        return ResponseEntity.ok().build()
+    }
+}
+
+fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
+
+@RestController
+@RequestMapping("documentation/{documentationId}/rating")
+class RatingController @Autowired constructor(
+        val ratingRepository: RatingRepository,
+        val documentationRepository: DocumentationRepository,
+        val documentRepository: DocumentRepository,
+) {
+    @CrossOrigin
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun create(@PathVariable documentationId: Int, @RequestBody dto: RatingInputDto, request: HttpServletRequest): ResponseEntity<Any> {
+        val documentation = documentationRepository.findById(documentationId).toNullable()
+        documentation ?: let {
+            return ResponseEntity.notFound().build()
+        }
+        val document = documentRepository.findByReferenceId(dto.referenceId)
+
+        if (document != null) {
+            val rating = Rating(
+                    null,
+                    dto.helpful,
+                    dto.comment,
+                    document,
+            )
+            val saved = ratingRepository.save(rating)
+            return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
+        } else {
+
+            val newDocument = Document(null, dto.referenceId, dto.link, documentation, emptyList())
+            documentRepository.save(newDocument)
+
+            val rating = Rating(
+                    null,
+                    dto.helpful,
+                    dto.comment,
+                    newDocument,
+            )
+            val saved = ratingRepository.save(rating)
+            return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
+        }
+    }
+
+    @GetMapping("/{ratingId}")
+    fun getRating(@PathVariable ratingId: Int): RatingOutputDto {
+        return RatingOutputDto.create(ratingRepository.findById(ratingId).get())
+    }
+
+    @PatchMapping("/{ratingId}")
+    @Transactional
+    fun updateRating(@PathVariable ratingId: Int, @RequestBody dto: RatingUpdateInputDto): ResponseEntity<Any> {
+        val optRating = ratingRepository.findById(ratingId)
+        if (!optRating.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val rating = optRating.get()
+        dto.helpful?.let { rating.helpful = it }
+        dto.comment?.let { rating.comment = it }
+
+        return ResponseEntity.ok(RatingOutputDto.create(rating))
+    }
+
+    @DeleteMapping("/{ratingId}")
+    fun deleteRating(@PathVariable ratingId: Int): ResponseEntity<Any> {
+        ratingRepository.deleteById(ratingId)
         return ResponseEntity.ok().build()
     }
 }
