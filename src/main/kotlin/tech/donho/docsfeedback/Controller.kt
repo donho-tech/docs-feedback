@@ -1,6 +1,5 @@
 package tech.donho.docsfeedback
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -119,11 +118,6 @@ class DocumentController @Autowired constructor(
         return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
     }
 
-    @GetMapping
-    fun getAllDocuments(@PathVariable documentationId: Int): ResponseEntity<List<DocumentDto>>? {
-        return ResponseEntity.ok(documentRepository.findByDocumentation_Id(documentationId).map { DocumentDto.create(it) })
-    }
-
     @GetMapping("/{documentId}")
     fun getDocument(@PathVariable documentId: Int): ResponseEntity<DocumentDto>? {
         return documentRepository.findById(documentId)
@@ -143,5 +137,11 @@ class DocumentController @Autowired constructor(
         document.get().link = dto.link
 
         return ResponseEntity.ok(DocumentDto.create(document.get()))
+    }
+
+    @DeleteMapping("/{documentId}")
+    fun deleteDocument(@PathVariable documentId: Int): ResponseEntity<Any> {
+        documentRepository.deleteById(documentId)
+        return ResponseEntity.ok().build()
     }
 }
