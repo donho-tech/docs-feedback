@@ -30,14 +30,18 @@ interface DocumentationRepository : CrudRepository<Documentation, Int>
 @Entity
 class Document(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Int? = null,
-    val referenceId: String,
-    val link: String?,
-    @ManyToOne @JoinColumn(name = "documentation_id") val documentation: Documentation,
+    var referenceId: String,
+    var link: String?,
+    @ManyToOne @JoinColumn(name = "documentation_id")
+    val documentation: Documentation,
+    @OneToMany(mappedBy = "document")
+    val ratings: List<Rating>,
 )
 
 @Repository
 interface DocumentRepository : CrudRepository<Document, Int> {
     fun findByReferenceId(referenceId: String): Document
+    fun findByDocumentation_Id(documentationId: Int): List<Document>
 }
 
 @Entity

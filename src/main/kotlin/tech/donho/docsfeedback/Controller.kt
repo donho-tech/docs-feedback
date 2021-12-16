@@ -30,14 +30,12 @@ class UserController @Autowired constructor(
 }
 
 @RestController
-@RequestMapping("doc")
-class RatingController @Autowired constructor(
+@RequestMapping("documentation")
+class DocumentationController @Autowired constructor(
         val ratingRepository: RatingRepository,
         val documentationRepository: DocumentationRepository,
         val documentRepository: DocumentRepository,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     @PostMapping
     fun createDocumentation(@RequestBody dto: DocumentationDto, request: HttpServletRequest): ResponseEntity<Any> {
         val documentation = Documentation(null, dto.name, emptyList())
@@ -67,7 +65,7 @@ class RatingController @Autowired constructor(
         }
 
         documentation.get().name = dto.name
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok(DocumentationDto.create(documentation.get()))
     }
 
     @DeleteMapping("/{docId}")
@@ -99,5 +97,51 @@ class RatingController @Autowired constructor(
         )
         ratingRepository.save(rating)
         return "created"
+    }
+}
+
+@RestController
+@RequestMapping("documentation/{documentationId}/document")
+class DocumentController @Autowired constructor(
+        val documentationRepository: DocumentationRepository,
+        val documentRepository: DocumentRepository,
+) {
+    @PostMapping
+    fun createDocument(@PathVariable documentationId: Int, @RequestBody dto: DocumentExcerptDto, request: HttpServletRequest): ResponseEntity<Any> {
+        val documentation = documentationRepository.findById(documentationId)
+        if (!documentation.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val document = Document(null, dto.referenceId, dto.link, documentation.get(), emptyList())
+        val saved = documentRepository.save(document)
+
+        return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
+    }
+
+    @GetMapping
+    fun getAllDocuments(@PathVariable documentationId: Int): ResponseEntity<List<DocumentDto>>? {
+        return ResponseEntity.ok(documentRepository.findByDocumentation_Id(documentationId).map { DocumentDto.create(it) })
+    }
+
+    @GetMapping("/{documentId}")
+    fun getDocument(@PathVariable documentId: Int): ResponseEntity<DocumentDto>? {
+        return documentRepository.findById(documentId)
+                .map { ResponseEntity.ok(DocumentDto.create(it)) }
+                .orElseGet { ResponseEntity.notFound().build() }
+    }
+
+    @PatchMapping("/{documentId}")
+    @Transactional
+    fun updateDocument(@PathVariable documentId: Int, @RequestBody dto: DocumentInputDto): ResponseEntity<Any> {
+        val document = documentRepository.findById(documentId)
+        if (!document.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        dto.referenceId?.let { document.get().referenceId = it }
+        document.get().link = dto.link
+
+        return ResponseEntity.ok(DocumentDto.create(document.get()))
     }
 }

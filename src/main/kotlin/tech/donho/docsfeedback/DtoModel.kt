@@ -12,6 +12,11 @@ class DocumentationDto(
     }
 }
 
+class DocumentInputDto(
+        val referenceId: String?,
+        val link: String?,
+)
+
 class DocumentExcerptDto(
         val id: Int,
         val referenceId: String,
@@ -41,9 +46,15 @@ class RatingOutputDto(
 }
 
 class DocumentDto(
-        val name: String,
+        val id: Int,
+        val referenceId: String,
+        val link: String?,
+        val ratings: List<RatingOutputDto>,
 ) {
     companion object Factory {
-        fun create(documentation: Documentation): DocumentDto = DocumentDto(documentation.name)
+        fun create(document: Document): DocumentDto {
+            val ratings = document.ratings.map { RatingOutputDto.create(it) }
+            return DocumentDto(document.id!!, document.referenceId, document.link, ratings)
+        }
     }
 }
