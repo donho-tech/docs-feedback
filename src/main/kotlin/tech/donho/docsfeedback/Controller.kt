@@ -38,19 +38,24 @@ class RatingController @Autowired constructor(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    @GetMapping("/{docId}")
-    fun getDocumentation(@PathVariable docId: Int): ResponseEntity<DocumentationDto>? {
-        return documentationRepository.findById(docId)
-                .map { ResponseEntity.ok(DocumentationDto.create(it)) }
-                .orElseGet { ResponseEntity.notFound().build() }
-    }
-
-    @PostMapping()
+    @PostMapping
     fun createDocumentation(@RequestBody dto: DocumentationDto, request: HttpServletRequest): ResponseEntity<Any> {
         val documentation = Documentation(null, dto.name, emptyList())
         val saved = documentationRepository.save(documentation)
 
         return ResponseEntity.created(URI(request.requestURL.toString() + "/" + saved.id)).build()
+    }
+
+    @GetMapping
+    fun getAllDocumentations(): ResponseEntity<List<DocumentationDto>>? {
+        return ResponseEntity.ok(documentationRepository.findAll().map { DocumentationDto.create(it) })
+    }
+
+    @GetMapping("/{docId}")
+    fun getDocumentation(@PathVariable docId: Int): ResponseEntity<DocumentationDto>? {
+        return documentationRepository.findById(docId)
+                .map { ResponseEntity.ok(DocumentationDto.create(it)) }
+                .orElseGet { ResponseEntity.notFound().build() }
     }
 
     @PatchMapping("/{docId}")
@@ -85,7 +90,6 @@ class RatingController @Autowired constructor(
     @CrossOrigin
     @PostMapping("/{docId}/ratings", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@PathVariable docId: Int, @RequestBody dto: RatingInputDto): String {
-        val documentation = documentationRepository.findById(docId).get()
         val document = documentRepository.findByReferenceId(dto.referenceId)
         val rating = Rating(
                 null,
