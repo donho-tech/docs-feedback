@@ -66,7 +66,7 @@ class RatingController @Autowired constructor(
     }
 
     @DeleteMapping("/{docId}")
-    fun createDocumentation(@PathVariable docId: Int): ResponseEntity<Any> {
+    fun deleteDocumentation(@PathVariable docId: Int): ResponseEntity<Any> {
         documentationRepository.deleteById(docId)
         return ResponseEntity.ok().build()
     }
